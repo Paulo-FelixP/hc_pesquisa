@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus Pesquisa HC-UFPE</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'busca/style.css' %}">
+</head>
+
+<body>
+
+  <!-- HEADER REAL OFICIAL -->
+  <header>
+    <div class="menu-icon" id="menuBtn">&#9776;</div>
+
+    <h1>Nexus Pesquisa HC-UFPE</h1>
+
+    <div class="login-area">
+        {% if user.is_authenticated %}
+            <a href="/logout/" class="login-btn">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="login-btn">Login</a>
+        {% endif %}
+    </div>
+  </header>
+
+  <!-- MENU LATERAL -->
+  <nav id="sidebar" class="sidebar">
+    <ul>
+      <li>Histórico de Pesquisa</li>
+      <li>Registro de Erros</li>
+      <li>Editar Padrão de Busca</li>
+
+      {% if user.is_authenticated %}
+        <li><a href="{% url 'upload_artigos' %}">Importar Artigos</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  <!-- Botão voltar -->
+  <a href="#" class="back-button">←</a>
+
+  <div class="container">
+    <div class="filters">
+      <h2>Selecione os Filtros</h2>
+
+      <div class="databases">
+        <button type="button">Scielo</button>
+        <button type="button">PubMed</button>
+        <button type="button">Lilacs</button>
+        <button type="button">Capes Periódicos</button>
+      </div>
+
+      <div class="date-section">
+        <label>Período de busca</label>
+
+        <label>A partir de</label>
+        <input type="date" name="start_date" value="2021-01-01">
+
+        <label>Até</label>
+        <input type="date" name="end_date">
+      </div>
+
+      <div class="search-section">
+        <label>Busca Personalizada</label>
+
+        <form method="GET" action="{% url 'resultados' %}">
+          <div class="search-box">
+            <input type="text" name="q" placeholder="Buscar artigos" required>
+            <button type="submit">PESQUISAR</button>
+          </div>
+        </form>
+
+        <div class="filters-type">
+          <button type="button">Autor</button>
+          <button type="button">Título</button>
+          <button type="button">Tema</button>
+        </div>
+      </div>
+
+      <div class="edit-pattern">
+        Editar Padrão de Busca
+        <i>✎</i>
+      </div>
+    </div>
+
+    <div class="stats-box">
+      <h3>Número de Artigos por Plataforma</h3>
+
+      <label>Total:</label>
+      <input type="text" value="{{ total }}" readonly>
+
+      <label>PubMed</label>
+      <input type="text" value="{{ pubmed }}" readonly>
+
+      <label>Scielo</label>
+      <input type="text" value="{{ scielo }}" readonly>
+
+      <label>Lilacs</label>
+      <input type="text" value="{{ lilacs }}" readonly>
+
+      <label>Outro</label>
+      <input type="text" value="{{ outros }}" readonly>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="{% static 'busca/script.js' %}"></script>
+</body>
+</html>

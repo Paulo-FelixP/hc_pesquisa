@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Nexus HC-UFPE</title>
+    <link rel="stylesheet" href="{% static 'busca/style.css' %}">
+</head>
+<body>
+
+<header>
+    <div class="menu-icon">&#9776;</div>
+    <h1>Login - Nexus HC-UFPE</h1>
+</header>
+
+<a href="/" class="back-button" style="margin-left:40px;">← Voltar</a>
+
+<div class="container" style="justify-content:center; margin-top:40px;">
+
+    <div style="
+        background:#E8EDFA;
+        padding:30px;
+        border-radius:12px;
+        width:350px;
+        box-shadow:0 0 10px rgba(0,0,0,0.1);
+    ">
+
+        <h2 style="text-align:center; margin-bottom:20px;">Acesso do Gestor</h2>
+
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="msg {{ msg.tags }}">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <label>Usuário</label>
+            <input type="text" name="username" required
+                style="width:100%; padding:10px; border-radius:8px; border:1px solid #999;">
+
+            <label>Senha</label>
+            <input type="password" name="password" required
+                style="width:100%; padding:10px; border-radius:8px; border:1px solid #999;">
+
+            <button type="submit"
+                style="
+                    margin-top:20px;
+                    width:100%;
+                    background:#1E50E1;
+                    color:#fff;
+                    border:none;
+                    padding:12px;
+                    font-weight:bold;
+                    border-radius:8px;
+                    cursor:pointer;
+                ">
+                Entrar
+            </button>
+        </form>
+
+    </div>
+</div>
+
+</body>
+</html>

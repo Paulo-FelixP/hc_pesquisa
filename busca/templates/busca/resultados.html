@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados da Pesquisa - Nexus HC</title>
+    <link rel="stylesheet" href="{% static 'busca/style.css' %}">
+</head>
+<body>
+
+<header>
+    <a href="/" class="back-button">← Voltar</a>
+    <h1>Resultados da Pesquisa</h1>
+</header>
+
+<div class="container">
+
+    <div class="results-box">
+
+        {% if query %}
+            <h2>Resultados para: <span style="color:#1976D2;">"{{ query }}"</span></h2>
+        {% else %}
+            <h2>Resultados da Pesquisa</h2>
+        {% endif %}
+
+        {% if artigos %}
+            <ul class="article-list">
+                {% for art in artigos %}
+                    <li class="article-item">
+                        <h3>{{ art.titulo }}</h3>
+
+                        {% if art.autores %}
+                            <p><strong>Autores:</strong> {{ art.autores }}</p>
+                        {% endif %}
+
+                        {% if art.ano %}
+                            <p><strong>Ano:</strong> {{ art.ano }}</p>
+                        {% endif %}
+
+                        <p><strong>PMID:</strong> {{ art.pmid }}</p>
+
+                        <a class="article-link" href="{{ art.link }}" target="_blank">
+                            Acessar Artigo
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        {% else %}
+            <p style="margin-top:20px; font-size:1.1em;">
+                Nenhum artigo encontrado para a busca informada.
+            </p>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<script src="{% static 'busca/script.js' %}"></script>
+</body>
+</html>

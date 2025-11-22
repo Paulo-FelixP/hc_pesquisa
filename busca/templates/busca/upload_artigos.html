@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Importar Artigos - Nexus HC</title>
+  <link rel="stylesheet" href="{% static 'busca/style.css' %}">
+  <style>
+    .container {
+        max-width: 700px;
+        margin: 30px auto;
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+
+    header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    header h1 {
+        margin: 0;
+    }
+
+    .back-button {
+        text-decoration: none;
+        font-size: 18px;
+        background: #005caa;
+        padding: 6px 12px;
+        color: #fff;
+        border-radius: 6px;
+    }
+
+    .upload-form input[type="file"] {
+        margin-top: 8px;
+    }
+
+    button {
+        background: #0077cc;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #005fa3;
+    }
+
+    .messages {
+        margin-bottom: 15px;
+    }
+
+    .msg {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 8px;
+    }
+
+    .msg.success { background: #dff0d8; color: #2d6a2d; }
+    .msg.error { background: #f2dede; color: #a94442; }
+    .msg.warning { background: #fcf8e3; color: #8a6d3b; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="{% url 'home' %}" class="back-button">← Voltar</a>
+  <h1>Importar Artigos</h1>
+</header>
+
+<div class="container">
+
+  {% if messages %}
+    <div class="messages">
+      {% for msg in messages %}
+        <div class="msg {{ msg.tags }}">{{ msg }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="upload-form">
+    {% csrf_token %}
+    <label><strong>Selecione um arquivo (.xlsx, .xls ou .csv)</strong></label><br>
+    <input type="file" name="arquivo" accept=".xlsx,.xls,.csv" required><br><br>
+
+    <button type="submit">Importar</button>
+  </form>
+
+  <hr style="margin: 30px 0;">
+
+  <p>
+    ✔ O arquivo deve conter pelo menos estas colunas:<br>
+    <strong>PMID</strong> • <strong>Titulo</strong> • <strong>Link</strong>
+  </p>
+
+  <p>
+    ✔ Aceita arquivos de qualquer fonte: <strong>PubMed, LILACS, SciELO, CAPES</strong> ou outros.
+  </p>
+
+</div>
+
+</body>
+</html>

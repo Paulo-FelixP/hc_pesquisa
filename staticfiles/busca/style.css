@@ -1,0 +1,256 @@
+/* =======================
+   ESTILO GERAL
+======================= */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #fff;
+  margin: 0;
+  padding: 0;
+  color: #000;
+  overflow-x: hidden;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+}
+
+.menu-icon {
+  font-size: 30px;
+  cursor: pointer;
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.back-button {
+  font-size: 30px;
+  color: #1E50E1;
+  text-decoration: none;
+  display: inline-block;
+  margin: 20px 40px;
+}
+
+/* =======================
+   MENU LATERAL
+======================= */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100vh;
+  background-color: #E8EDFA;
+  transition: left 0.3s ease;
+  padding-top: 60px;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar ul li {
+  padding: 20px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  color: #000;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  transition: background 0.3s;
+}
+
+.sidebar ul li:hover {
+  background-color: #D2DCF9;
+}
+
+.sidebar.active {
+  left: 0;
+}
+
+/* =======================
+   CONTEÚDO PRINCIPAL
+======================= */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 40px;
+}
+
+.filters {
+  flex: 1;
+}
+
+h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.databases button {
+  border: 1.5px solid #1E50E1;
+  background: none;
+  color: #1E50E1;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.databases button:hover,
+.databases button.active {
+  background: #1E50E1;
+  color: #fff;
+}
+
+.date-section {
+  margin-top: 20px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+input[type="text"], input[type="date"] {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+  width: 180px;
+}
+
+.search-section {
+  margin-top: 30px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: 1.5px solid #1E50E1;
+  outline: none;
+  font-size: 14px;
+}
+
+.search-box button {
+  background: #1E50E1;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.search-box button:hover {
+  background: #163fbf;
+}
+
+.filters-type button {
+  border: 1.5px solid #1E50E1;
+  background: none;
+  color: #1E50E1;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-right: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.filters-type button:hover,
+.filters-type button.active {
+  background: #1E50E1;
+  color: #fff;
+}
+
+.edit-pattern {
+  display: flex;
+  align-items: center;
+  margin-top: 40px;
+  font-weight: bold;
+}
+
+.edit-pattern i {
+  background: #1E50E1;
+  color: white;
+  border-radius: 50%;
+  padding: 8px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.stats-box {
+  background: #E8EDFA;
+  padding: 20px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  width: 220px;
+}
+
+.stats-box h3 {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.stats-box label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  text-align: left;
+}
+
+.stats-box input {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  background: #fff;
+}
+
+/* Botão de Login (Home) */
+.login-area {
+    position: absolute;
+    right: 30px;
+    top: 20px;
+}
+
+.login-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #0066cc;            /* Azul padrão institucional */
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.login-btn:hover {
+    background: #004c99;            /* Azul mais escuro */
+    transform: scale(1.03);
+}
+
+.login-btn:active {
+    transform: scale(0.98);
+}
