@@ -1,0 +1,22 @@
+# Ignorar ambiente virtual
+venv/
+.venv/
+
+# Django / Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos estáticos coletados
+staticfiles/
+
+# Configurações do VSCode
+.vscode/
+
+# Logs
+*.log
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
