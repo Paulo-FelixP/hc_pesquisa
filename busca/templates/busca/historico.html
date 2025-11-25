@@ -1,0 +1,75 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Histórico de Busca - Nexus HC</title>
+  <link rel="stylesheet" href="{% static 'busca/style.css' %}">
+</head>
+<body>
+  <header>
+    <a href="{% url 'home' %}" class="back-button">← Voltar</a>
+    <h1>Histórico de Busca</h1>
+  </header>
+
+  <div class="container">
+    <div class="results-box">
+      {% if page_obj.object_list %}
+        <table class="history-table" style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr>
+              <th>Quando</th>
+              <th>Termo</th>
+              <th>Origem(s)</th>
+              <th>Tipo</th>
+              <th>Período</th>
+              <th>Usuário</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for h in page_obj.object_list %}
+              <tr>
+                <td style="white-space:nowrap;">{{ h.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ h.termo|default:"(vazio)" }}</td>
+                <td>{{ h.origem|default:"todas" }}</td>
+                <td>{{ h.tipo|default:"-" }}</td>
+                <td>
+                  {% if h.data_inicio or h.data_fim %}
+                    {{ h.data_inicio|date:"Y-m-d" }} — {{ h.data_fim|date:"Y-m-d" }}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td>
+                    {% if h.user %}
+                        {{ h.user.username }}
+                    {% else %}
+                        anônimo
+                    {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'resultados' %}?{{ h.query_string }}" class="btn small">🔁 Refazer</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div style="margin-top:12px;">
+          {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">◀ Anterior</a>
+          {% endif %}
+          Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Próxima ▶</a>
+          {% endif %}
+        </div>
+
+      {% else %}
+        <p>Nenhuma busca registrada ainda.</p>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

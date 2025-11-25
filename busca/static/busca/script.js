@@ -13,40 +13,44 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ===== FILTRO POR BASE =====
+// ===== MULTI-SELEÇÃO DE BASES =====
+let origensSelecionadas = [];
+
 document.querySelectorAll('.databases button').forEach(btn => {
   btn.addEventListener('click', () => {
-    const base = btn.innerText.toLowerCase();
 
-    let origem = "";
-    if (base.includes("pubmed")) origem = "pubmed";
-    if (base.includes("scielo")) origem = "scielo";
-    if (base.includes("lilacs")) origem = "lilacs";
-    if (base.includes("capes")) origem = "capes";
+    const base = btn.dataset.base;
 
-    // pega a URL atual
-    const url = new URL(window.location.href);
-    const params = url.searchParams;
+    // alterna seleção
+    if (origensSelecionadas.includes(base)) {
+      origensSelecionadas = origensSelecionadas.filter(b => b !== base);
+      btn.classList.remove("active");
+    } else {
+      origensSelecionadas.push(base);
+      btn.classList.add("active");
+    }
 
-    // substitui origem
-    params.set("origem", origem);
-
-    // redireciona
-    window.location.href = `/resultados/?${params.toString()}`;
+    // coloca no hidden
+    document.getElementById("origens_input").value = origensSelecionadas.join(",");
   });
 });
 
-// ===== FILTROS AUTOR/TÍTULO/TEMA =====
+// ===== TIPO (autor/título/tema) =====
 document.querySelectorAll('.filters-type button').forEach(btn => {
   btn.addEventListener('click', () => {
-    const tipo = btn.innerText.toLowerCase(); // autor / título / tema
 
-    const q = document.querySelector('.search-box input').value.trim();
-    if (!q) {
-      alert("Digite algo no campo de busca antes de filtrar.");
-      return;
-    }
+    // remove seleção anterior
+    document.querySelectorAll('.filters-type button')
+      .forEach(x => x.classList.remove("active"));
 
-    window.location.href = `/resultados/?q=${encodeURIComponent(q)}&tipo=${tipo}`;
+    btn.classList.add("active");
+
+    document.getElementById("tipo_input").value = btn.dataset.tipo;
   });
+});
+
+// ===== BOTÃO PESQUISAR =====
+// agora SÓ envia quando clicar nele
+document.getElementById("btnPesquisar").addEventListener("click", () => {
+  document.querySelector("form").submit();
 });

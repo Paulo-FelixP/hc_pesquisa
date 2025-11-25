@@ -5,17 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nexus Pesquisa HC-UFPE</title>
-
-  <!-- CSS -->
   <link rel="stylesheet" href="{% static 'busca/style.css' %}">
 </head>
 
 <body>
 
-  <!-- HEADER REAL OFICIAL -->
-  <header>
+<header>
     <div class="menu-icon" id="menuBtn">&#9776;</div>
-
     <h1>Nexus Pesquisa HC-UFPE</h1>
 
     <div class="login-area">
@@ -25,12 +21,11 @@
             <a href="{% url 'login' %}" class="login-btn">Login</a>
         {% endif %}
     </div>
-  </header>
+</header>
 
-  <!-- MENU LATERAL -->
-  <nav id="sidebar" class="sidebar">
+<nav id="sidebar" class="sidebar">
     <ul>
-      <li>Histórico de Pesquisa</li>
+      <li><a href="{% url 'historico' %}">Histórico de Busca</a></li>
       <li>Registro de Erros</li>
       <li>Editar Padrão de Busca</li>
 
@@ -38,55 +33,70 @@
         <li><a href="{% url 'upload_artigos' %}">Importar Artigos</a></li>
       {% endif %}
     </ul>
-  </nav>
+</nav>
 
-  <!-- Botão voltar -->
-  <a href="#" class="back-button">←</a>
+<a href="#" class="back-button">←</a>
 
-  <div class="container">
+<div class="container">
     <div class="filters">
       <h2>Selecione os Filtros</h2>
 
+      <!-- BOTÕES DE ORIGEM -->
       <div class="databases">
-        <button type="button">Scielo</button>
-        <button type="button">PubMed</button>
-        <button type="button">Lilacs</button>
-        <button type="button">Capes Periódicos</button>
+        <button type="button" data-base="pubmed">Pubmed</button>
+        <button type="button" data-base="scielo">Scielo</button>
+        <button type="button" data-base="lilacs">Lilacs</button>
+        <button type="button" data-base="outros">Outros</button>
+
       </div>
 
+      <!-- FILTRO DE PERÍODO -->
       <div class="date-section">
         <label>Período de busca</label>
 
         <label>A partir de</label>
-        <input type="date" name="start_date" value="2021-01-01">
+        <input type="date" name="start_date" id="start_date">
 
         <label>Até</label>
-        <input type="date" name="end_date">
+        <input type="date" name="end_date" id="end_date">
       </div>
 
+      <!-- FORM DE PESQUISA -->
       <div class="search-section">
         <label>Busca Personalizada</label>
 
         <form method="GET" action="{% url 'resultados' %}">
+
+          <!-- Recebe as ORIGENS clicadas -->
+          <input type="hidden" name="origem" id="origens_input">
+
+          <!-- Tipo selecionado (autor/título/tema) -->
+          <input type="hidden" name="tipo" id="tipo_input">
+
+          <!-- Datas reais enviadas à view -->
+          <input type="hidden" name="data_inicio" id="data_inicio_input">
+          <input type="hidden" name="data_fim" id="data_fim_input">
+
           <div class="search-box">
-            <input type="text" name="q" placeholder="Buscar artigos" required>
-            <button type="submit">PESQUISAR</button>
+            <input type="text" name="q" placeholder="Buscar artigos">
+            <button id="btnPesquisar" type="button" class="search-btn">PESQUISAR</button>
           </div>
         </form>
 
+        <!-- Tipos de pesquisa -->
         <div class="filters-type">
-          <button type="button">Autor</button>
-          <button type="button">Título</button>
-          <button type="button">Tema</button>
+            <button data-tipo="autor">Autor</button>
+            <button data-tipo="titulo">Título</button>
+            <button data-tipo="tema">Tema</button>
         </div>
       </div>
 
       <div class="edit-pattern">
-        Editar Padrão de Busca
-        <i>✎</i>
+        Editar Padrão de Busca <i>✎</i>
       </div>
     </div>
 
+    <!-- ESTATÍSTICAS -->
     <div class="stats-box">
       <h3>Número de Artigos por Plataforma</h3>
 
@@ -105,9 +115,31 @@
       <label>Outro</label>
       <input type="text" value="{{ outros }}" readonly>
     </div>
-  </div>
+</div>
 
-  <!-- JS -->
-  <script src="{% static 'busca/script.js' %}"></script>
+<!-- ENVIO AUTOMÁTICO DAS DATAS PARA O FORM -->
+<script>
+document.getElementById("btnPesquisar").addEventListener("click", () => {
+    document.getElementById("data_inicio_input").value =
+        document.getElementById("start_date").value;
+
+    document.getElementById("data_fim_input").value =
+        document.getElementById("end_date").value;
+});
+</script>
+
+<script>
+document.getElementById("btnPesquisar").addEventListener("click", () => {
+    let di = document.getElementById("start_date").value;
+    let df = document.getElementById("end_date").value;
+
+    document.getElementById("data_inicio_input").value = di;
+    document.getElementById("data_fim_input").value = df;
+});
+</script>
+
+<!-- JS -->
+<script src="{% static 'busca/script.js' %}?v=3"></script>
+
 </body>
 </html>

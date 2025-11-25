@@ -254,3 +254,9 @@ input[type="text"], input[type="date"] {
 .login-btn:active {
     transform: scale(0.98);
 }
+
+.databases button.active,
+.filters-type button.active {
+    background-color: #007bff;
+    color: white;
+}

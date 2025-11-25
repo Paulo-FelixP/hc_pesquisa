@@ -7,6 +7,7 @@
     <title>Resultados da Pesquisa - Nexus HC</title>
     <link rel="stylesheet" href="{% static 'busca/style.css' %}">
 </head>
+
 <body>
 
 <header>
@@ -24,29 +25,51 @@
             <h2>Resultados da Pesquisa</h2>
         {% endif %}
 
+        {% if data_inicio or data_fim %}
+            <p style="margin-top:10px;">
+                <strong>Período:</strong>
+                {% if data_inicio %} a partir de {{ data_inicio }} {% endif %}
+                {% if data_fim %} até {{ data_fim }} {% endif %}
+            </p>
+        {% endif %}
+
         {% if artigos %}
             <ul class="article-list">
                 {% for art in artigos %}
                     <li class="article-item">
+
                         <h3>{{ art.titulo }}</h3>
 
                         {% if art.autores %}
                             <p><strong>Autores:</strong> {{ art.autores }}</p>
                         {% endif %}
 
-                        {% if art.ano %}
-                            <p><strong>Ano:</strong> {{ art.ano }}</p>
+                        {% if art.data_publicacao %}
+                            <p><strong>Publicado em:</strong> {{ art.data_publicacao }}</p>
                         {% endif %}
 
-                        <p><strong>PMID:</strong> {{ art.pmid }}</p>
+                        {% if art.pmid %}
+                            <p><strong>PMID:</strong> {{ art.pmid }}</p>
+                        {% endif %}
 
                         <a class="article-link" href="{{ art.link }}" target="_blank">
                             Acessar Artigo
                         </a>
+
+                        {% if user.is_staff %}
+                            <!-- 🔥 BOTÃO EXCLUIR PARA ADMIN -->
+                            <form method="POST" action="{% url 'excluir_artigo' art.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-btn"
+                                        onclick="return confirm('Tem certeza que deseja excluir este artigo?');">
+                                    Excluir Artigo
+                                </button>
+                            </form>
+                        {% endif %}
+
                     </li>
                 {% endfor %}
             </ul>
-
         {% else %}
             <p style="margin-top:20px; font-size:1.1em;">
                 Nenhum artigo encontrado para a busca informada.
@@ -57,6 +80,7 @@
 
 </div>
 
-<script src="{% static 'busca/script.js' %}"></script>
+<script src="{% static 'busca/script.js' %}?v=3"></script>
+
 </body>
 </html>
