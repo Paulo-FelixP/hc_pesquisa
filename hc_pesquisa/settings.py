@@ -122,3 +122,5 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 APPEND_SLASH = True
+
+CSRF_TRUSTED_ORIGINS = ['https://hcpesquisa-production.up.railway.app']
