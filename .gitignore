@@ -8,9 +8,6 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Arquivos estáticos coletados
-staticfiles/
-
 # Configurações do VSCode
 .vscode/
 
