@@ -1,3 +1,2 @@
-web: gunicorn hc_pesquisa.wsgi
-
 release: python manage.py collectstatic --noinput
+web: gunicorn hc_pesquisa.wsgi
