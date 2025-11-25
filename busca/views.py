@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import get_object_or_404
+from .models import ArtigoSalvo
 
 
 
@@ -323,3 +324,30 @@ def excluir_artigo(request, id):
     messages.success(request, "Artigo excluído com sucesso!")
     return redirect("resultados")
 
+
+def salvar_artigo(request):
+    if request.method == "POST":
+        titulo = request.POST.get("titulo")
+        autores = request.POST.get("autores")
+        ano = request.POST.get("ano")
+        link = request.POST.get("link")
+        resumo = request.POST.get("resumo")
+
+        ArtigoSalvo.objects.create(
+            titulo=titulo,
+            autores=autores,
+            ano=ano,
+            link=link,
+            resumo=resumo,
+        )
+
+        return redirect("lista_salvos")
+
+def lista_salvos(request):
+    artigos = ArtigoSalvo.objects.all().order_by("-criado_em")
+    return render(request, "busca/salvos.html", {"artigos": artigos})
+
+def remover_salvo(request, id):
+    artigo = get_object_or_404(ArtigoSalvo, id=id)
+    artigo.delete()
+    return redirect("lista_salvos")

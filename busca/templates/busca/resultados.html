@@ -56,6 +56,19 @@
                             Acessar Artigo
                         </a>
 
+                        <!-- ⭐ ADICIONADO AQUI: FORMULÁRIO PARA SALVAR ARTIGO -->
+                        <form action="{% url 'salvar_artigo' %}" method="POST" style="margin-top:8px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="titulo" value="{{ art.titulo }}">
+                            <input type="hidden" name="autores" value="{{ art.autores }}">
+                            <input type="hidden" name="ano" value="{{ art.data_publicacao }}">
+                            <input type="hidden" name="link" value="{{ art.link }}">
+                            <input type="hidden" name="resumo" value="{{ art.resumo }}">
+                        
+                            <button type="submit" class="save-btn">Salvar Artigo</button>
+                        </form>
+                        <!-- ⭐ FIM DO TRECHO ADICIONADO -->
+
                         {% if user.is_staff %}
                             <!-- 🔥 BOTÃO EXCLUIR PARA ADMIN -->
                             <form method="POST" action="{% url 'excluir_artigo' art.id %}" style="display:inline;">

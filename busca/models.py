@@ -58,3 +58,17 @@ class SearchHistory(models.Model):
 
     def __str__(self):
         return f"{self.termo or '(sem termo)'} — {self.origem or 'todas'} — {self.created_at:%Y-%m-%d %H:%M'}"
+    
+class ArtigoSalvo(models.Model):
+    titulo = models.CharField(max_length=255)
+    autores = models.CharField(max_length=255, blank=True, null=True)
+    ano = models.CharField(max_length=10, blank=True, null=True)
+    link = models.URLField(blank=True, null=True)
+    resumo = models.TextField(blank=True, null=True)
+
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.titulo
+    
+    

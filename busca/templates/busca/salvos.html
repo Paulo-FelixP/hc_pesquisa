@@ -1,0 +1,22 @@
+<h2>Artigos Salvos</h2>
+
+{% if artigos %}
+    <ul>
+        {% for artigo in artigos %}
+            <li>
+                <strong>{{ artigo.titulo }}</strong><br>
+                {{ artigo.autores }} — {{ artigo.ano }}<br>
+
+                {% if artigo.link %}
+                    <a href="{{ artigo.link }}" target="_blank">Abrir artigo</a>
+                {% endif %}
+
+                <p>{{ artigo.resumo|truncatechars:200 }}</p>
+
+                <a href="{% url 'remover_salvo' artigo.id %}">Remover</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Nenhum artigo salvo.</p>
+{% endif %}
