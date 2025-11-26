@@ -1,6 +1,12 @@
 
 from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Carrega variáveis do .env
+load_dotenv()
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -60,6 +66,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'hc_pesquisa.wsgi.application'
+
+# ================================
+# CONFIGURAÇÃO DAS BUSCAS EXTERNAS
+# ================================
+NCBI_EMAIL = os.getenv("NCBI_EMAIL", "default@noreply.com")
+NCBI_TOOL = os.getenv("NCBI_TOOL", "django_app")
 
 
 # Database

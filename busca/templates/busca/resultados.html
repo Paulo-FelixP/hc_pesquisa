@@ -2,12 +2,27 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Resultados da Pesquisa - Nexus HC</title>
     <link rel="stylesheet" href="{% static 'busca/style.css' %}">
+    <style>
+        /* Styles leves adicionais apenas para esta página (pode mover para style.css) */
+        .container { max-width: 950px; margin: 20px auto; padding: 0 16px; }
+        header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+        header a.back-button { text-decoration:none; font-size:1.0rem; color:#333; }
+        .results-box { background:#f7f9fb; padding:18px; border-radius:10px; }
+        .article-list{ list-style:none; padding:0; margin:0; }
+        .article-item{ background:#fff; padding:16px; margin:12px 0; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+        .article-meta { font-size:0.9rem; color:#555; margin-bottom:6px; }
+        .origin-tag { display:inline-block; padding:4px 8px; border-radius:6px; font-size:0.8rem; color:#fff; background:#1976D2; margin-right:8px; }
+        .article-link{ display:inline-block; margin-top:8px; text-decoration:none; font-weight:600; color:#0b63b7; }
+        .btn-inline{ display:inline-block; margin-left:8px; padding:6px 10px; border-radius:6px; border:0; cursor:pointer; }
+        .save-btn { background:#28a745; color:white; }
+        .delete-btn { background:#dc3545; color:white; }
+        .small-note { font-size:0.9rem; color:#666; margin-top:8px; }
+    </style>
 </head>
-
 <body>
 
 <header>
@@ -16,7 +31,6 @@
 </header>
 
 <div class="container">
-
     <div class="results-box">
 
         {% if query %}
@@ -26,74 +40,83 @@
         {% endif %}
 
         {% if data_inicio or data_fim %}
-            <p style="margin-top:10px;">
+            <p class="small-note">
                 <strong>Período:</strong>
-                {% if data_inicio %} a partir de {{ data_inicio }} {% endif %}
-                {% if data_fim %} até {{ data_fim }} {% endif %}
+                {% if data_inicio %} a partir de {{ data_inicio }} {% else %} a partir de qualquer data {% endif %}
+                —
+                {% if data_fim %} até {{ data_fim }} {% else %} até qualquer data {% endif %}
             </p>
         {% endif %}
 
-        {% if artigos %}
+        {% comment %} principais resultados vindos das fontes externas (view envia "resultados") {% endcomment %}
+        {% if resultados %}
             <ul class="article-list">
-                {% for art in artigos %}
+                {% for art in resultados %}
                     <li class="article-item">
 
-                        <h3>{{ art.titulo }}</h3>
+                        {# origem/fonte - alguns serviços usam 'origem' ou 'fonte' #}
+                        <div class="article-meta">
+                            <span class="origin-tag">
+                                {% if art.origem %}{{ art.origem }}{% elif art.fonte %}{{ art.fonte }}{% else %}Fonte Desconhecida{% endif %}
+                            </span>
+
+                            {% if art.pmid %}
+                                <strong>PMID:</strong> {{ art.pmid }} &nbsp;
+                            {% endif %}
+
+                            {% if art.data_publicacao %}
+                                <strong>Publicado em:</strong> {{ art.data_publicacao }} &nbsp;
+                            {% endif %}
+                        </div>
+
+                        <h3 style="margin:6px 0 8px 0;">{{ art.titulo }}</h3>
 
                         {% if art.autores %}
                             <p><strong>Autores:</strong> {{ art.autores }}</p>
                         {% endif %}
 
-                        {% if art.data_publicacao %}
-                            <p><strong>Publicado em:</strong> {{ art.data_publicacao }}</p>
+                        {% if art.resumo %}
+                            <p style="margin-top:8px;">{{ art.resumo }}</p>
                         {% endif %}
 
-                        {% if art.pmid %}
-                            <p><strong>PMID:</strong> {{ art.pmid }}</p>
-                        {% endif %}
+                        <div style="margin-top:10px;">
+                            <a class="article-link" href="{{ art.link }}" target="_blank" rel="noopener noreferrer">🔗 Acessar Artigo</a>
 
-                        <a class="article-link" href="{{ art.link }}" target="_blank">
-                            Acessar Artigo
-                        </a>
-
-                        <!-- ⭐ ADICIONADO AQUI: FORMULÁRIO PARA SALVAR ARTIGO -->
-                        <form action="{% url 'salvar_artigo' %}" method="POST" style="margin-top:8px;">
-                            {% csrf_token %}
-                            <input type="hidden" name="titulo" value="{{ art.titulo }}">
-                            <input type="hidden" name="autores" value="{{ art.autores }}">
-                            <input type="hidden" name="ano" value="{{ art.data_publicacao }}">
-                            <input type="hidden" name="link" value="{{ art.link }}">
-                            <input type="hidden" name="resumo" value="{{ art.resumo }}">
-                        
-                            <button type="submit" class="save-btn">Salvar Artigo</button>
-                        </form>
-                        <!-- ⭐ FIM DO TRECHO ADICIONADO -->
-
-                        {% if user.is_staff %}
-                            <!-- 🔥 BOTÃO EXCLUIR PARA ADMIN -->
-                            <form method="POST" action="{% url 'excluir_artigo' art.id %}" style="display:inline;">
+                            <!-- Botão salvar (sempre disponível) -->
+                            <form action="{% url 'salvar_artigo' %}" method="POST" style="display:inline;">
                                 {% csrf_token %}
-                                <button type="submit" class="delete-btn"
-                                        onclick="return confirm('Tem certeza que deseja excluir este artigo?');">
-                                    Excluir Artigo
-                                </button>
+                                <input type="hidden" name="titulo" value="{{ art.titulo }}">
+                                <input type="hidden" name="autores" value="{{ art.autores }}">
+                                <input type="hidden" name="ano" value="{{ art.data_publicacao }}">
+                                <input type="hidden" name="link" value="{{ art.link }}">
+                                <input type="hidden" name="resumo" value="{{ art.resumo }}">
+                                <button type="submit" class="btn-inline save-btn">💾 Salvar Artigo</button>
                             </form>
-                        {% endif %}
+
+                            <!-- Botão excluir: só aparece para staff E quando o item tem id (venha do DB) -->
+                            {% if user.is_staff and art.id %}
+                                <form method="POST" action="{% url 'excluir_artigo' art.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-inline delete-btn" onclick="return confirm('Excluir este artigo do banco?');">🗑️ Excluir</button>
+                                </form>
+                            {% endif %}
+                        </div>
 
                     </li>
                 {% endfor %}
             </ul>
+
         {% else %}
-            <p style="margin-top:20px; font-size:1.1em;">
+
+            <p style="margin-top:20px; font-size:1.05em;">
                 Nenhum artigo encontrado para a busca informada.
             </p>
+
         {% endif %}
 
     </div>
-
 </div>
 
 <script src="{% static 'busca/script.js' %}?v=3"></script>
-
 </body>
 </html>

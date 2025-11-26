@@ -5,13 +5,15 @@ from .models import Artigo, SearchHistory
 from .utils.filtros import pertence_ao_hc
 from .services.pubmed import buscar_pubmed
 from .services.scielo import buscar_scielo
-from .services.lilacs import buscar_lilacs
+from .services.lilacs import LilacsService
 import pandas as pd
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import get_object_or_404
 from .models import ArtigoSalvo
+from .models import SearchHistory
+
 
 
 
@@ -24,7 +26,7 @@ def buscar_artigos(termo):
 
     artigos += buscar_pubmed(termo)
     artigos += buscar_scielo(termo)
-    artigos += buscar_lilacs(termo)
+    artigos += LilacsService.buscar_lilacs(termo)
 
     filtrados = []
 
@@ -71,87 +73,50 @@ from datetime import datetime
 from .models import Artigo
 
 def resultados(request):
+
+    # -----------------------------
+    # 🔍 CAPTURA DOS PARÂMETROS
+    # -----------------------------
     termo = request.GET.get("q", "").strip()
-    origem = request.GET.get("origem", "").strip().lower()
-    tipo = request.GET.get("tipo", "").strip().lower()
-    data_inicio = request.GET.get("data_inicio", "").strip()
-    data_fim = request.GET.get("data_fim", "").strip()
+    origem = request.GET.get("origem", "").strip()
+    tipo = request.GET.get("tipo", "").strip()
+    data_inicio = request.GET.get("data_inicio")
+    data_fim = request.GET.get("data_fim")
 
-    artigos = Artigo.objects.all()
+    # -----------------------------
+    # 🔥 BUSCAS EXTERNAS
+    # -----------------------------
+    resultados_pubmed = buscar_pubmed(termo, data_inicio, data_fim)
+    resultados_scielo = buscar_scielo(termo)
+    resultados_lilacs = LilacsService.buscar_lilacs(termo)
 
-    # suportar múltiplas origens separadas por vírgula
-    if origem:
-        lista_origens = [o.strip() for o in origem.split(",") if o.strip()]
-        if lista_origens:
-            artigos = artigos.filter(origem__in=lista_origens)
+    # Combinar tudo
+    resultados = resultados_pubmed + resultados_scielo + resultados_lilacs
 
-    # filtro por tipo/termo (mantém sua lógica)
-    if termo:
-        termo_normalizado = termo.replace("[Affiliation]", "").strip(" '\"")
+    # -----------------------------
+    # 📝 SALVAR HISTÓRICO
+    # -----------------------------
+    SearchHistory.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        termo=termo,
+        origem=origem,
+        tipo=tipo,
+        data_inicio=data_inicio if data_inicio else None,
+        data_fim=data_fim if data_fim else None,
+        query_string=request.META.get("QUERY_STRING", "")
+    )
 
-        if tipo == "autor":
-            artigos = artigos.filter(autores__icontains=termo_normalizado)
-        elif tipo in ["título", "titulo"]:
-            artigos = artigos.filter(titulo__icontains=termo_normalizado)
-        elif tipo == "tema":
-            artigos = artigos.filter(
-                Q(resumo__icontains=termo_normalizado) |
-                Q(titulo__icontains=termo_normalizado)
-            )
-        else:
-            artigos = artigos.filter(
-                Q(titulo__icontains=termo_normalizado) |
-                Q(autores__icontains=termo_normalizado) |
-                Q(resumo__icontains=termo_normalizado) |
-                Q(afiliacao__icontains=termo_normalizado) |
-                Q(termo_de_busca__icontains=termo_normalizado)
-            )
-
-    # ---------------------------
-    # SALVA O HISTÓRICO (sempre que houver filtros ou termo)
-    # ---------------------------
-    should_save = bool(termo or origem or data_inicio or data_fim or tipo)
-    if should_save:
-        try:
-            # converte dates para None se vierem vazias
-            di = data_inicio or None
-            df = data_fim or None
-
-            SearchHistory.objects.create(
-                user=request.user if request.user.is_authenticated else None,
-                termo=termo,
-                origem=origem,
-                tipo=tipo,
-                data_inicio=di,
-                data_fim=df,
-                query_string=request.META.get('QUERY_STRING', '')
-            )
-        except Exception:
-            # não quebrar a página se houver erro ao salvar histórico
-            pass
-
-    if data_inicio:
-        try:
-            data_i = datetime.strptime(data_inicio, "%Y-%m-%d").date()
-            artigos = artigos.filter(data_publicacao__gte=data_i)
-        except:
-            pass
-
-    if data_fim:
-        try:
-            data_f = datetime.strptime(data_fim, "%Y-%m-%d").date()
-            artigos = artigos.filter(data_publicacao__lte=data_f)
-        except:
-            pass
-
+    # -----------------------------
+    # 🔄 ENVIAR PARA O TEMPLATE
+    # -----------------------------
     return render(request, "busca/resultados.html", {
-            "artigos": artigos,
-            "query": termo,
-            "origem": origem,
-            "tipo": tipo,
-            "data_inicio": data_inicio,
-            "data_fim": data_fim
-        })
+        "resultados": resultados,
+        "query": termo,
+        "origem": origem,
+        "tipo": tipo,
+        "data_inicio": data_inicio,
+        "data_fim": data_fim,
+    })
 
 
 # ============================

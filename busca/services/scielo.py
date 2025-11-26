@@ -1,37 +1,77 @@
 import requests
 from bs4 import BeautifulSoup
-from ..utils.filtros import pertence_ao_hc
+import re
 
-def buscar_scielo(termo):
-    artigos = []
-    url = f"https://search.scielo.org/?q={termo.replace(' ', '+')}"
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    )
+}
 
-    page = requests.get(url)
-    soup = BeautifulSoup(page.text, "html.parser")
+BASE_URL = "https://search.scielo.org/?q={query}&lang=pt&count=50"
 
-    resultados = soup.select("div.item")
 
-    for item in resultados:
-        titulo_el = item.select_one("a.title")
-        if not titulo_el:
-            continue
+def buscar_scielo_raw(query: str) -> str:
+    url = BASE_URL.format(query=query)
+    r = requests.get(url, headers=HEADERS)
+    r.raise_for_status()
+    return r.text
 
-        link = titulo_el["href"]
-        titulo = titulo_el.get_text(strip=True)
 
-        artigo_page = requests.get(link)
-        artigo_soup = BeautifulSoup(artigo_page.text, "html.parser")
+def limpar_periodico(texto: str) -> str:
+    # Remove blocos inúteis
+    lixo = [
+        "Métricas do periódico",
+        "Sobre o periódico",
+        "SciELO Analytics",
+    ]
+    for l in lixo:
+        texto = texto.replace(l, "")
 
-        afiliacao_el = artigo_soup.select_one("div.aff span")
-        afiliacao = afiliacao_el.get_text(" ", strip=True) if afiliacao_el else ""
+    return " ".join(texto.split()).strip()
 
-        if not pertence_ao_hc(afiliacao):
-            continue
 
-        artigos.append({
+def buscar_scielo(query: str, max_results=10):
+    html = buscar_scielo_raw(query)
+    soup = BeautifulSoup(html, "html.parser")
+
+    resultados = []
+
+    artigos = soup.select(".item")
+
+    for art in artigos[:max_results]:
+
+        # TÍTULO (texto dentro do <a>)
+        a_tag = art.select_one(".line a")
+        titulo = a_tag.get_text(strip=True) if a_tag else "Sem título"
+
+        # LINK
+        link = a_tag["href"] if a_tag else ""
+
+        # AUTORES
+        autores_tag = art.select_one(".authors")
+        autores = autores_tag.get_text(" ", strip=True) if autores_tag else "Sem autores"
+
+        # PERIÓDICO (limpo)
+        periodico_tag = art.select_one(".source")
+        periodico = limpar_periodico(periodico_tag.get_text(" ", strip=True)) if periodico_tag else "Sem periódico"
+
+        # ANO — extrair 4 dígitos
+        ano = "Sem ano"
+        achou_ano = re.search(r"(\d{4})", periodico)
+        if achou_ano:
+            ano = achou_ano.group(1)
+
+        resultados.append({
             "titulo": titulo,
+            "autores": autores,
+            "ano": ano,
+            "periodico": periodico,
             "link": link,
-            "afiliacao": afiliacao
+            "origem": "Scielo",
+            "fonte": "Scielo",
         })
 
-    return artigos
+    return resultados
