@@ -67,31 +67,54 @@ def home(request):
 # ============================
 # 🔍 RESULTADOS
 # ============================
-from django.shortcuts import render
-from django.db.models import Q
-from datetime import datetime
-from .models import Artigo
-
 def resultados(request):
 
     # -----------------------------
     # 🔍 CAPTURA DOS PARÂMETROS
     # -----------------------------
     termo = request.GET.get("q", "").strip()
-    origem = request.GET.get("origem", "").strip()
+    origens = request.GET.get("origem", "").strip().split(",")  # <--- agora é lista!
     tipo = request.GET.get("tipo", "").strip()
     data_inicio = request.GET.get("data_inicio")
     data_fim = request.GET.get("data_fim")
 
-    # -----------------------------
-    # 🔥 BUSCAS EXTERNAS
-    # -----------------------------
-    resultados_pubmed = buscar_pubmed(termo, data_inicio, data_fim)
-    resultados_scielo = buscar_scielo(termo)
-    resultados_lilacs = LilacsService.buscar_lilacs(termo)
+    resultados = []
 
-    # Combinar tudo
-    resultados = resultados_pubmed + resultados_scielo + resultados_lilacs
+    # -----------------------------
+    # 🔥 BUSCAS EXTERNAS POR ORIGEM
+    # -----------------------------
+    if "pubmed" in origens:
+        resultados += buscar_pubmed(termo, data_inicio, data_fim)
+
+    if "scielo" in origens:
+        resultados += buscar_scielo(termo)
+
+    if "lilacs" in origens:
+        resultados += LilacsService.buscar_lilacs(termo, data_inicio, data_fim)
+
+    # “Outros” = tudo que não seja pubmed / scielo / lilacs
+    if "outros" in origens:
+        outros = Artigo.objects.exclude(origem__in=["pubmed", "scielo", "lilacs"])
+        resultados += [art.to_dict() for art in outros]
+
+    # -----------------------------
+    # 🎯 APLICAR FILTRO TIPO
+    # -----------------------------
+    if tipo == "autor":
+        resultados = [r for r in resultados if termo.lower() in (r.get("autores") or "").lower()]
+
+    elif tipo == "titulo":
+        resultados = [r for r in resultados if termo.lower() in (r.get("titulo") or "").lower()]
+
+    elif tipo == "tema":
+        resultados = [
+            r for r in resultados
+            if termo.lower() in (
+                (r.get("titulo") or "") + " "
+                + (r.get("resumo") or "") + " "
+                + (r.get("palavras_chave") or "")
+            ).lower()
+        ]
 
     # -----------------------------
     # 📝 SALVAR HISTÓRICO
@@ -99,26 +122,24 @@ def resultados(request):
     SearchHistory.objects.create(
         user=request.user if request.user.is_authenticated else None,
         termo=termo,
-        origem=origem,
+        origem=",".join(origens),
         tipo=tipo,
-        data_inicio=data_inicio if data_inicio else None,
-        data_fim=data_fim if data_fim else None,
+        data_inicio=data_inicio or None,
+        data_fim=data_fim or None,
         query_string=request.META.get("QUERY_STRING", "")
     )
 
     # -----------------------------
-    # 🔄 ENVIAR PARA O TEMPLATE
+    # 🔄 RETORNO
     # -----------------------------
     return render(request, "busca/resultados.html", {
         "resultados": resultados,
         "query": termo,
-        "origem": origem,
+        "origem": ",".join(origens),
         "tipo": tipo,
         "data_inicio": data_inicio,
         "data_fim": data_fim,
     })
-
-
 # ============================
 #  IMPORTAÇÃO UNIVERSAL
 # ============================
