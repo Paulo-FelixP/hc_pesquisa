@@ -10,5 +10,7 @@ urlpatterns = [
     path("salvar/", views.salvar_artigo, name="salvar_artigo"),
     path("salvos/", views.lista_salvos, name="lista_salvos"),
     path("remover/<int:id>/", views.remover_salvo, name="remover_salvo"),
+    path("historico/delete/<int:id>/", views.apagar_historico, name="apagar_historico"),
+
 
 ]

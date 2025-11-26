@@ -115,19 +115,19 @@ def resultados(request):
                 + (r.get("palavras_chave") or "")
             ).lower()
         ]
-
     # -----------------------------
-    # 📝 SALVAR HISTÓRICO
+    # 📝 SALVAR HISTÓRICO DA BUSCA
     # -----------------------------
-    SearchHistory.objects.create(
-        user=request.user if request.user.is_authenticated else None,
-        termo=termo,
-        origem=",".join(origens),
-        tipo=tipo,
-        data_inicio=data_inicio or None,
-        data_fim=data_fim or None,
-        query_string=request.META.get("QUERY_STRING", "")
-    )
+    if request.user.is_authenticated:
+        SearchHistory.objects.create(
+            user=request.user,
+            termo=termo,
+            origem=",".join(origens),
+            tipo=tipo,
+            data_inicio=data_inicio or None,
+            data_fim=data_fim or None,
+            query_string=request.META.get("QUERY_STRING", "")
+        )
 
     # -----------------------------
     # 🔄 RETORNO
@@ -290,15 +290,25 @@ def upload_artigos(request):
 
     return render(request, "busca/upload_artigos.html")
 
+@login_required
 def historico(request):
-    qs = SearchHistory.objects.all().select_related("user")
-    paginator = Paginator(qs, 30)  # 30 por página
+    qs = SearchHistory.objects.filter(user=request.user).order_by("-id")
+
+    paginator = Paginator(qs, 30)
     page = request.GET.get("page", 1)
     page_obj = paginator.get_page(page)
 
     return render(request, "busca/historico.html", {
         "page_obj": page_obj
     })
+
+@login_required
+def apagar_historico(request, id):
+    historico = get_object_or_404(SearchHistory, id=id, user=request.user)
+    historico.delete()
+
+    return redirect("historico")
+
 
 
 from django.contrib.auth.decorators import user_passes_test

@@ -2,74 +2,207 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8">
-  <title>Histórico de Busca - Nexus HC</title>
-  <link rel="stylesheet" href="{% static 'busca/style.css' %}">
+    <meta charset="utf-8">
+    <title>Histórico de Busca - Nexus HC</title>
+    <link rel="stylesheet" href="{% static 'busca/style.css' %}">
+    
+    <style>
+        body {
+            font-family: "Inter", Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            background: #1d3557;
+            color: white;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 500;
+        }
+
+        .back-button {
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .back-button:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .results-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .history-table thead {
+            background: #e9eef6;
+        }
+
+        .history-table th {
+            text-align: left;
+            padding: 12px 10px;
+            font-weight: 600;
+            color: #345;
+            border-bottom: 2px solid #d6dce5;
+        }
+
+        .history-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eceff3;
+        }
+
+        .history-table tr:hover {
+            background: #f8fbff;
+        }
+
+        .btn {
+            background: #1d3557;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: #16304b;
+        }
+
+        /* paginação */
+        .pagination {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        .pagination a {
+            margin: 0 8px;
+            text-decoration: none;
+            color: #1d3557;
+            font-weight: 500;
+        }
+
+        .pagination a:hover {
+            text-decoration: underline;
+        }
+
+        .no-history {
+            text-align: center;
+            padding: 40px 0;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
 </head>
+
 <body>
-  <header>
+
+<header>
     <a href="{% url 'home' %}" class="back-button">← Voltar</a>
     <h1>Histórico de Busca</h1>
-  </header>
+</header>
 
-  <div class="container">
+<div class="container">
     <div class="results-box">
-      {% if page_obj.object_list %}
-        <table class="history-table" style="width:100%; border-collapse:collapse;">
-          <thead>
-            <tr>
-              <th>Quando</th>
-              <th>Termo</th>
-              <th>Origem(s)</th>
-              <th>Tipo</th>
-              <th>Período</th>
-              <th>Usuário</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for h in page_obj.object_list %}
-              <tr>
-                <td style="white-space:nowrap;">{{ h.created_at|date:"Y-m-d H:i" }}</td>
-                <td>{{ h.termo|default:"(vazio)" }}</td>
-                <td>{{ h.origem|default:"todas" }}</td>
-                <td>{{ h.tipo|default:"-" }}</td>
-                <td>
-                  {% if h.data_inicio or h.data_fim %}
-                    {{ h.data_inicio|date:"Y-m-d" }} — {{ h.data_fim|date:"Y-m-d" }}
-                  {% else %}
-                    —
-                  {% endif %}
-                </td>
-                <td>
-                    {% if h.user %}
-                        {{ h.user.username }}
-                    {% else %}
-                        anônimo
-                    {% endif %}
-                </td>
-                <td>
-                  <a href="{% url 'resultados' %}?{{ h.query_string }}" class="btn small">🔁 Refazer</a>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
 
-        <div style="margin-top:12px;">
-          {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}">◀ Anterior</a>
-          {% endif %}
-          Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-          {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">Próxima ▶</a>
-          {% endif %}
-        </div>
+        {% if page_obj.object_list %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Quando</th>
+                        <th>Termo</th>
+                        <th>Origem(s)</th>
+                        <th>Tipo</th>
+                        <th>Período</th>
+                        <th>Usuário</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in page_obj.object_list %}
+                        <tr>
+                            <td style="white-space:nowrap;">{{ h.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ h.termo|default:"(vazio)" }}</td>
+                            <td>{{ h.origem|default:"todas" }}</td>
+                            <td>{{ h.tipo|default:"-" }}</td>
 
-      {% else %}
-        <p>Nenhuma busca registrada ainda.</p>
-      {% endif %}
+                            <td>
+                                {% if h.data_inicio or h.data_fim %}
+                                    {{ h.data_inicio|date:"Y-m-d" }} — {{ h.data_fim|date:"Y-m-d" }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if h.user %}
+                                    {{ h.user.username }}
+                                {% else %}
+                                    anônimo
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <a href="{% url 'resultados' %}?{{ h.query_string }}" class="btn">Refazer</a>
+                                 <a href="{% url 'apagar_historico' h.id %}" 
+                                    class="btn-delete"
+                                    onclick="return confirm('Tem certeza que deseja apagar esta pesquisa?');">
+                                    Apagar
+                                  </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}">◀ Anterior</a>
+                {% endif %}
+                
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Próxima ▶</a>
+                {% endif %}
+            </div>
+
+        {% else %}
+            <div class="no-history">
+                Nenhuma busca registrada ainda.
+            </div>
+        {% endif %}
+
     </div>
-  </div>
+</div>
+
 </body>
 </html>

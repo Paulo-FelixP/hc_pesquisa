@@ -260,3 +260,27 @@ input[type="text"], input[type="date"] {
     background-color: #007bff;
     color: white;
 }
+
+.btn-delete {
+    background: #e63946;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: 0.2s ease-in-out;
+    border: none;
+}
+
+.btn-delete:hover {
+    background: #b72b36;
+    transform: scale(1.05);
+}
+
+.btn-delete i {
+    font-size: 14px;
+}
