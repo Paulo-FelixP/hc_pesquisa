@@ -12,8 +12,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import get_object_or_404
 from .models import ArtigoSalvo
-from .models import SearchHistory
-
+from .models import SearchHistory, Planilha
 
 
 
@@ -128,7 +127,7 @@ def resultados(request):
             data_fim=data_fim or None,
             query_string=request.META.get("QUERY_STRING", "")
         )
-
+    planilhas_usuario = Planilha.objects.filter(user=request.user) if request.user.is_authenticated else []
     # -----------------------------
     # 🔄 RETORNO
     # -----------------------------
@@ -139,7 +138,9 @@ def resultados(request):
         "tipo": tipo,
         "data_inicio": data_inicio,
         "data_fim": data_fim,
+        "planilhas": planilhas_usuario,
     })
+
 # ============================
 #  IMPORTAÇÃO UNIVERSAL
 # ============================

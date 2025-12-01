@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.conf import settings
 
 
@@ -72,3 +73,39 @@ class ArtigoSalvo(models.Model):
         return self.titulo
     
     
+class Planilha(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="planilhas"
+    )
+    nome = models.CharField("Nome da planilha", max_length=150)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "nome")
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"{self.nome} ({self.user.username})"
+
+
+class ItemPlanilha(models.Model):
+    planilha = models.ForeignKey(
+        Planilha,
+        on_delete=models.CASCADE,
+        related_name="itens"
+    )
+    titulo = models.CharField("Título", max_length=500)
+    autores = models.CharField("Autores", max_length=500, blank=True)
+    resumo = models.TextField("Resumo", blank=True)  # breve trecho do artigo
+    data_publicacao = models.DateField("Data de publicação", null=True, blank=True)
+    origem = models.CharField("Origem", max_length=30)  # "pubmed", "scielo", "lilacs" ou "outros"
+    link = models.URLField("Link")
+    adicionado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-adicionado_em"]
+
+    def __str__(self):
+        return self.titulo[:80]

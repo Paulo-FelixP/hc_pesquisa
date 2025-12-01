@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{% static 'busca/style.css' %}">
     <style>
         /* Styles leves adicionais apenas para esta página (pode mover para style.css) */
-        .container { max-width: 950px; margin: 20px auto; padding: 0 16px; }
+        .container { max-width: 950px; margin: 20px auto; padding: 0 16px; display: block !important;}
         header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
         header a.back-button { text-decoration:none; font-size:1.0rem; color:#333; }
         .results-box { background:#f7f9fb; padding:18px; border-radius:10px; }
@@ -21,6 +21,7 @@
         .save-btn { background:#28a745; color:white; }
         .delete-btn { background:#dc3545; color:white; }
         .small-note { font-size:0.9rem; color:#666; margin-top:8px; }
+
     </style>
 </head>
 <body>
@@ -93,6 +94,18 @@
                                 <button type="submit" class="btn-inline save-btn">💾 Salvar Artigo</button>
                             </form>
 
+                             <!-- Botão pra a planilha -->
+                            <button type="button" class="planilha-btn"
+                                data-titulo="{{ art.titulo|escapejs }}"
+                                data-autores="{{ art.autores|escapejs }}"
+                                data-resumo="{{ art.resumo|escapejs }}"
+                                data-data="{{ art.data_publicacao|escapejs }}"
+                                data-link="{{ art.link|escapejs }}"
+                                data-origem="{% if art.origem %}{{ art.origem|escapejs }}{% elif art.fonte %}{{ art.fonte|escapejs }}{% else %}Indefinido{% endif %}">
+                                ➕ Planilha
+                            </button>
+
+
                             <!-- Botão excluir: só aparece para staff E quando o item tem id (venha do DB) -->
                             {% if user.is_staff and art.id %}
                                 <form method="POST" action="{% url 'excluir_artigo' art.id %}" style="display:inline;">
@@ -117,6 +130,59 @@
     </div>
 </div>
 
-<script src="{% static 'busca/script.js' %}?v=3"></script>
+
+<!-- Modal de Seleção de Planilha -->
+<div id="planilhaModal" class="modal-planilha" aria-hidden="true" style="display:none;">
+  <div class="modal-content-planilha" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Adicionar à Planilha</h3>
+
+    <p class="modal-subinfo" id="modalArticleInfo"></p>
+
+    <!-- Formulário para adicionar a uma planilha EXISTENTE -->
+    <div class="lista-planilhas" id="listaPlanilhasContainer">
+      <p style="margin:0 0 8px 0;">Escolha uma planilha existente:</p>
+      <div id="listaPlanilhas">
+        {% for p in planilhas %}
+          <div class="item-planilha" data-id="{{ p.id }}">{{ p.nome }}</div>
+        {% empty %}
+          <div style="color:#666;">Você não tem planilhas ainda.</div>
+        {% endfor %}
+      </div>
+      <div style="margin-top:8px;">
+        <button id="btnAdicionarSelecionada" class="btn-adicionar" disabled>Adicionar à planilha selecionada</button>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Formulário para criar nova planilha (POST para criar_planilha) -->
+    <form id="formCriarPlanilha" method="POST" action="{% url 'criar_planilha' %}">
+      {% csrf_token %}
+      <label for="nomeNova">Criar nova planilha:</label>
+      <input type="text" id="nomeNova" name="nome" placeholder="Nome da planilha" style="width:100%;padding:8px;margin:6px 0 10px;">
+      <button type="submit" class="btn-nova-planilha">Criar e adicionar</button>
+    </form>
+
+    <div class="modal-actions" style="margin-top:12px;">
+      <button class="btn-cancelar" type="button" id="btnFecharModal">Fechar</button>
+    </div>
+
+    <!-- Hidden form que será enviado para adicionar o item (POST não-AJAX) -->
+    <!-- IMPORTANT: note os names padronizados (titulo, autores, resumo, data_publicacao, origem, link) -->
+    <form id="formAdicionarItem" method="POST" style="display:none;">
+      {% csrf_token %}
+      <input type="hidden" name="titulo" id="h_titulo">
+      <input type="hidden" name="autores" id="h_autores">
+      <input type="hidden" name="resumo" id="h_resumo">
+      <input type="hidden" name="data_publicacao" id="h_data">
+      <input type="hidden" name="origem" id="h_origem">
+      <input type="hidden" name="link" id="h_link">
+    </form>
+  </div>
+</div>
+
+<script src="{% static 'busca/script.js' %}?v=10000"></script>
+
+
 </body>
 </html>

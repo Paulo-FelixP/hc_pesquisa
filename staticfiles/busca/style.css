@@ -260,3 +260,65 @@ input[type="text"], input[type="date"] {
     background-color: #007bff;
     color: white;
 }
+
+.btn-delete {
+    background: #e63946;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: 0.2s ease-in-out;
+    border: none;
+}
+
+.btn-delete:hover {
+    background: #b72b36;
+    transform: scale(1.05);
+}
+
+.btn-delete i {
+    font-size: 14px;
+}
+
+/* Modal planilha (clean, não conflita com bootstrap) */
+.modal-planilha {
+  display: none; /* controlado via JS */
+  position: fixed;
+  z-index: 4000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.modal-content-planilha {
+  background: #fff;
+  width: 480px;
+  max-width: 96%;
+  padding: 18px;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  position: relative;
+  z-index: 4100;
+}
+.modal-content-planilha h3 { margin: 0 0 8px 0; font-size: 18px; }
+.modal-subinfo { color:#444; font-size:0.9em; margin-bottom:10px; }
+
+.lista-planilhas { max-height: 220px; overflow-y: auto; margin-bottom:8px; border-radius:6px; padding:8px; background:#f6f8fb; }
+.item-planilha { padding:8px; background:#fff; border-radius:6px; margin-bottom:6px; cursor:pointer; border:1px solid transparent; }
+.item-planilha:hover { border-color:#cce3ff; }
+.item-planilha.selecionada { border-color:#1976D2; background:#e9f4ff; }
+
+.btn-nova-planilha { background:#1976D2; color:#fff; padding:8px 10px; border-radius:6px; border:none; cursor:pointer; }
+.btn-adicionar { background:#28a745; color:#fff; padding:8px 10px; border-radius:6px; border:none; cursor:pointer; }
+.btn-cancelar { background:#ccc; color:#111; padding:8px 10px; border-radius:6px; border:none; cursor:pointer; }

@@ -26,11 +26,13 @@
 <nav id="sidebar" class="sidebar">
     <ul>
       <li><a href="{% url 'historico' %}">Histórico de Busca</a></li>
-      <li>Registro de Erros</li>
-      <li>Editar Padrão de Busca</li>
       <li><a href="{% url 'lista_salvos' %}">Artigos Salvos</a></li>
       {% if user.is_authenticated %}
-        <li><a href="{% url 'upload_artigos' %}">Importar Artigos</a></li>
+        <li class="nav-item">
+            <a href="{% url 'lista_planilhas' %}" class="nav-link">
+                <i class="bi bi-table"></i> Minhas Planilhas
+            </a>
+        </li>
       {% endif %}
     </ul>
 </nav>

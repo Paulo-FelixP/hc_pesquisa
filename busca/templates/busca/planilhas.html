@@ -1,0 +1,168 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Planilhas</title>
+
+    <link rel="stylesheet" href="{% static 'busca/style.css' %}">
+    <script src="{% static 'busca/script.js' %}" defer></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .novo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .novo input {
+            padding: 10px;
+            width: 260px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .novo button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #3498db;
+            border: none;
+            color: white;
+            border-radius: 6px;
+        }
+
+        .planilha-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+
+        .planilha-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-danger {
+            background: #c0392b;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-download {
+            background: #2980b9;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        table th {
+            background: #eaeaea;
+        }
+    </style>
+
+</head>
+<body>
+
+<h1>Minhas Planilhas</h1>
+
+<!-- CRIAR PLANILHA – FUNCIONANDO -->
+<div class="novo">
+    <form action="{% url 'criar_planilha' %}" method="POST">
+        {% csrf_token %}
+        <input type="text" name="nome" placeholder="Nome da nova planilha" required>
+        <button type="submit">Criar</button>
+    </form>
+</div>
+
+{% for p in planilhas %}
+<div class="planilha-box">
+
+    <div class="planilha-header">
+        <h2>{{ p.nome }}</h2>
+
+        <div>
+            <a href="{% url 'visualizar_planilha' p.id %}">
+                <button class="btn-download" type="button">Ver</button>
+            </a>
+
+            <a href="{% url 'download_planilha' p.id %}">
+                <button class="btn-download" type="button">Baixar CSV</button>
+            </a>
+
+            <a href="{% url 'apagar_planilha' p.id %}"
+               onclick="return confirm('Apagar esta planilha?')">
+                <button class="btn-danger" type="button">Excluir</button>
+            </a>
+        </div>
+    </div>
+
+    {% if p.itens.all|length > 0 %}
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Autores</th>
+                <th>Data</th>
+                <th>Origem</th>
+                <th>Link</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in p.itens.all %}
+            <tr>
+                <td>{{ item.titulo }}</td>
+                <td>{{ item.autores }}</td>
+                <td>{{ item.data_publicacao }}</td>
+                <td>{{ item.origem }}</td>
+                <td><a href="{{ item.link }}" target="_blank">Abrir</a></td>
+                <td>
+                    <a href="{% url 'remover_item' p.id item.id %}"
+                       onclick="return confirm('Remover este artigo?')">
+                        <button class="btn-danger" type="button">Remover</button>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+        <p>Nenhum item ainda.</p>
+    {% endif %}
+
+</div>
+{% endfor %}
+
+</body>
+</html>
