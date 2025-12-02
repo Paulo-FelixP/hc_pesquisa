@@ -4,8 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>Histórico de Busca - Nexus HC</title>
-    <link rel="stylesheet" href="{% static 'busca/style.css' %}">
-    
+
     <style>
         body {
             font-family: "Inter", Arial, sans-serif;
@@ -15,31 +14,51 @@
             color: #333;
         }
 
+        /* ==============================
+           HEADER PADRÃO DO SISTEMA
+        =============================== */
         header {
-            background: #1d3557;
+            background: #002b5c;
             color: white;
             padding: 18px 28px;
             display: flex;
             align-items: center;
-            gap: 20px;
+            justify-content: space-between;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 500;
+        .menu-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
-        .back-button {
-            color: #fff;
+        .menu-icon {
+            font-size: 26px;
+            cursor: pointer;
+        }
+
+        .login-btn {
+            background: white;
+            color: #002b5c;
+            padding: 6px 14px;
+            border-radius: 6px;
             text-decoration: none;
-            font-size: 16px;
+            font-weight: 600;
             transition: 0.2s;
         }
 
-        .back-button:hover {
-            opacity: 0.8;
+        .login-btn:hover {
+            opacity: 0.85;
         }
+
+        .logo-area img {
+            height: 44px;
+            display: block;
+        }
+
+        /* ==============================
+           CONTEÚDO
+        =============================== */
 
         .container {
             max-width: 1100px;
@@ -49,27 +68,35 @@
 
         .results-box {
             background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+            padding: 28px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.09);
         }
 
+        .results-box h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #002b5c;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* tabela */
         .history-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
             font-size: 14px;
         }
 
         .history-table thead {
-            background: #e9eef6;
+            background: #e8eef7;
         }
 
         .history-table th {
             text-align: left;
             padding: 12px 10px;
             font-weight: 600;
-            color: #345;
+            color: #002b5c;
             border-bottom: 2px solid #d6dce5;
         }
 
@@ -79,11 +106,27 @@
         }
 
         .history-table tr:hover {
-            background: #f8fbff;
+            background: #f7faff;
         }
 
+        /* botões */
         .btn {
-            background: #1d3557;
+            background: #002b5c;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: 0.2s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #001d40;
+        }
+
+        .btn-delete {
+            background: #d62828;
             color: white;
             padding: 6px 14px;
             border-radius: 8px;
@@ -92,8 +135,8 @@
             transition: 0.2s;
         }
 
-        .btn:hover {
-            background: #16304b;
+        .btn-delete:hover {
+            background: #b32020;
         }
 
         /* paginação */
@@ -106,8 +149,8 @@
         .pagination a {
             margin: 0 8px;
             text-decoration: none;
-            color: #1d3557;
-            font-weight: 500;
+            color: #002b5c;
+            font-weight: 600;
         }
 
         .pagination a:hover {
@@ -116,22 +159,39 @@
 
         .no-history {
             text-align: center;
-            padding: 40px 0;
-            font-size: 18px;
+            padding: 35px 0;
+            font-size: 17px;
             color: #666;
         }
+
+
     </style>
 </head>
 
 <body>
 
 <header>
-    <a href="{% url 'home' %}" class="back-button">← Voltar</a>
-    <h1>Histórico de Busca</h1>
+    <div class="menu-left">
+        <div class="menu-icon" id="menuBtn">☰</div>
+        <a href="{% url 'home' %}" style="color:white; text-decoration:none; font-size:17px;">← Voltar</a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px;">
+        {% if user.is_authenticated %}
+            <a href="/logout/" class="login-btn">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="login-btn">Login</a>
+        {% endif %}
+
+        <div class="logo-area">
+        </div>
+    </div>
 </header>
 
 <div class="container">
     <div class="results-box">
+
+        <h2>Histórico de Busca</h2>
 
         {% if page_obj.object_list %}
             <table class="history-table">
@@ -146,6 +206,7 @@
                         <th>Ações</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     {% for h in page_obj.object_list %}
                         <tr>
@@ -172,11 +233,11 @@
 
                             <td>
                                 <a href="{% url 'resultados' %}?{{ h.query_string }}" class="btn">Refazer</a>
-                                 <a href="{% url 'apagar_historico' h.id %}" 
-                                    class="btn-delete"
-                                    onclick="return confirm('Tem certeza que deseja apagar esta pesquisa?');">
+                                <a href="{% url 'apagar_historico' h.id %}"
+                                   class="btn-delete"
+                                   onclick="return confirm('Tem certeza que deseja apagar esta pesquisa?');">
                                     Apagar
-                                  </a>
+                                </a>
                             </td>
                         </tr>
                     {% endfor %}
